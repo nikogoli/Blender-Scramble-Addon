@@ -15,10 +15,9 @@ class QuickChildConstraint(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if 'selected_pose_bones' in dir(context):
-			if context.selected_pose_bones:
-				if 2 == len(context.selected_pose_bones):
-					return True
+		if context.selected_pose_bones is not None:
+			if len(context.selected_pose_bones) == 2:
+				return True
 		return False
 
 	def execute(self, context):
@@ -48,10 +47,11 @@ class SetIkChainLength(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if len(context.selected_pose_bones) == 2:
-			for const in context.active_pose_bone.constraints:
-				if const.type == 'IK':
-					return True
+		if context.selected_pose_bones is not None:
+			if len(context.selected_pose_bones) == 2:
+				for const in context.active_pose_bone.constraints:
+					if const.type == 'IK':
+						return True
 		return False
 
 	def execute(self, context):
@@ -90,10 +90,11 @@ class SetIkPoleTarget(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if len(context.selected_pose_bones) == 2:
-			for const in context.active_pose_bone.constraints:
-				if const.type == 'IK':
-					return True
+		if context.selected_pose_bones is not None:
+			if len(context.selected_pose_bones) == 2:
+				for const in context.active_pose_bone.constraints:
+					if const.type == 'IK':
+						return True
 		return False
 
 	def execute(self, context):
@@ -116,15 +117,11 @@ class SetIkPoleAngle(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		ob = context.active_object
-		if ob:
-			if ob.type == 'ARMATURE':
-				if context.selected_pose_bones:
-					if 1 <= len(context.selected_pose_bones):
-						for const in context.active_pose_bone.constraints:
-							if const.type == 'IK':
-								if const.pole_target:
-									return True
+		if context.selected_pose_bones is not None:
+			if context.selected_pose_bones:
+				for const in context.active_pose_bone.constraints:
+					if const.type == 'IK' and const.pole_target is not None:
+						return True
 		return False
 
 	def execute(self, context):
