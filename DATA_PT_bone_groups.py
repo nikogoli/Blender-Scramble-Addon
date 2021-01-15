@@ -18,10 +18,9 @@ class BoneGroupOnlyShow(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if (context.active_object):
-			if (context.active_object.type == 'ARMATURE'):
-				if (len(context.active_object.pose.bone_groups)):
-					return True
+		if context.mode == 'POSE':
+			if context.active_object.pose.bone_groups:
+				return True
 		return False
 
 	def execute(self, context):
@@ -60,10 +59,9 @@ class BoneGroupShow(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if (context.active_object):
-			if (context.active_object.type == 'ARMATURE'):
-				if (len(context.active_object.pose.bone_groups)):
-					return True
+		if context.mode == 'POSE':
+			if context.active_object.pose.bone_groups:
+				return True
 		return False
 
 	def execute(self, context):
