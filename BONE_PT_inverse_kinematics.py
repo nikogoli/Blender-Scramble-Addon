@@ -36,8 +36,9 @@ class CopyIkSettings(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if (2 <= len(context.selected_pose_bones)):
-			return True
+		if context.selected_pose_bones is not None:
+			if len(context.selected_pose_bones) >= 2:
+				return True
 		return False
 
 	def draw(self, context):
@@ -88,13 +89,8 @@ class ReverseIkMinMax(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		bone = context.active_pose_bone
-		if (bone):
-			for axis in ['x', 'y', 'z']:
-				diff = bone.__getattribute__('ik_min_' + axis) + bone.__getattribute__('ik_max_' + axis)
-				if (diff != 0):
-					return True
-			return False
+		if context.active_bone is not None:
+			return True
 		return False
 
 	def invoke(self, context, event):
@@ -157,16 +153,8 @@ class CopyIkAxisSetting(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		bone = context.active_pose_bone
-		if (bone):
-			for setting in ['lock_ik', 'ik_stiffness', 'use_ik_limit', 'ik_min', 'ik_max']:
-				x = bone.__getattribute__(setting + '_x')
-				y = bone.__getattribute__(setting + '_y')
-				z = bone.__getattribute__(setting + '_z')
-				if (x == y == z):
-					pass
-				else:
-					return True
+		if context.active_bone is not None:
+			return True
 		return False
 
 	def invoke(self, context, event):
@@ -226,21 +214,8 @@ class ResetIkSettings(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		bone = context.active_pose_bone
-		if bone:
-			for axis in ['x', 'y', 'z']:
-				if getattr(bone, 'lock_ik_' + axis) != False:
-					return True
-				if getattr(bone, 'ik_stiffness_' + axis) != 0.0:
-					return True
-				if getattr(bone, 'use_ik_limit_' + axis) != False:
-					return True
-				if -3.1415927410125 <= getattr(bone, 'ik_min_' + axis):
-					return True
-				if getattr(bone, 'ik_max_' + axis) <= 3.1415927410125:
-					return True
-			if bone.ik_stretch != 0.0:
-				return True
+		if context.active_bone is not None:
+			return True
 		return False
 
 	def execute(self, context):
