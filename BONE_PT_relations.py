@@ -8,7 +8,7 @@ from bpy.props import *
 # オペレーター #
 ################
 
-class copy_bone_relations_settings(bpy.types.Operator):
+class CopyBoneRelationsSettings(bpy.types.Operator):
 	bl_idname = "pose.copy_bone_relations_settings"
 	bl_label = "Copy Relations Settings"
 	bl_description = "Copy axtive bone's relations settings to other selected bones"
@@ -102,7 +102,7 @@ class copy_bone_relations_settings(bpy.types.Operator):
 ################
 
 classes = [
-	copy_bone_relations_settings
+	CopyBoneRelationsSettings
 ]
 
 def register():
@@ -139,6 +139,6 @@ def menu(self, context):
 				if 2 <= len(context.selected_bones):
 					flag = True
 		if flag:
-			self.layout.operator(copy_bone_relations_settings.bl_idname, icon='COPY_ID')
+			self.layout.operator(CopyBoneRelationsSettings.bl_idname, icon='COPY_ID')
 	if (context.preferences.addons[__name__.partition('.')[0]].preferences.use_disabled_menu):
 		self.layout.operator('wm.toggle_menu_enable', icon='CANCEL').id = __name__.split('.')[-1]
