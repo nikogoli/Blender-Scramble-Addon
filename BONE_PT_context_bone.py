@@ -20,9 +20,7 @@ class CopyBoneName(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if (context.active_bone):
-			return True
-		elif (context.active_pose_bone):
+		if context.active_bone is not None:
 			return True
 		return False
 
@@ -41,6 +39,12 @@ class RenameMirrorActiveBone(bpy.types.Operator):
 	bl_label = "Flip Bone Name's Axis Suffix"
 	bl_description = "Flip the axis suffix of the active bone's name"
 	bl_options = {'REGISTER', 'UNDO'}
+
+	@classmethod
+	def poll(cls, context):
+		if context.active_bone is not None:
+			return True
+		return False
 
 	def execute(self, context):
 		if (context.active_bone):
@@ -68,10 +72,8 @@ class AppendActiveBoneName(bpy.types.Operator):
 	string : StringProperty(name="Axis suffix")
 
 	@classmethod
-	def poll(self, context):
-		if (context.active_bone):
-			return True
-		if (context.active_pose_bone):
+	def poll(cls, context):
+		if context.active_bone is not None:
 			return True
 		return False
 
@@ -143,10 +145,9 @@ def IsMenuEnable(self_id):
 # メニューを登録する関数
 def menu(self, context):
 	if (IsMenuEnable(__name__.split('.')[-1])):
-		if (context.edit_bone or context.bone):
-			row = self.layout.row(align=True)
-			row.operator(CopyBoneName.bl_idname, icon='COPYDOWN', text="To Clipboard")
-			row.operator(RenameMirrorActiveBone.bl_idname, icon='MOD_MIRROR', text="Flip Axis Suffix")
-			row.menu(AppendNameMenu.bl_idname, icon='PLUGIN')
+		row = self.layout.row(align=True)
+		row.operator(CopyBoneName.bl_idname, icon='COPYDOWN', text="To Clipboard")
+		row.operator(RenameMirrorActiveBone.bl_idname, icon='MOD_MIRROR', text="Flip Axis Suffix")
+		row.menu(AppendNameMenu.bl_idname, icon='PLUGIN')
 	if (context.preferences.addons[__name__.partition('.')[0]].preferences.use_disabled_menu):
 		self.layout.operator('wm.toggle_menu_enable', icon='CANCEL').id = __name__.split('.')[-1]
