@@ -27,17 +27,12 @@ class CopyBoneRelationsSettings(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		ob = context.active_object
-		if ob:
-			if ob.type == 'ARMATURE':
-				if 'selected_pose_bones' in dir(context):
-					if context.selected_pose_bones:
-						if 2 <= len(context.selected_pose_bones):
-							return True
-				if 'selected_bones' in dir(context):
-					if context.selected_bones:
-						if 2 <= len(context.selected_bones):
-							return True
+		if context.selected_pose_bones is not None:
+			if len(context.selected_pose_bones) >= 2:
+				return True
+		elif context.selected_bones is not None:
+			if len(context.selected_bones) >= 2:
+				return True
 		return False
 
 	def invoke(self, context, event):
@@ -129,16 +124,7 @@ def IsMenuEnable(self_id):
 # メニューを登録する関数
 def menu(self, context):
 	if (IsMenuEnable(__name__.split('.')[-1])):
-		flag = False
-		if 'selected_pose_bones' in dir(context):
-			if context.selected_pose_bones:
-				if 2 <= len(context.selected_pose_bones):
-					flag = True
-		if 'selected_bones' in dir(context):
-			if context.selected_bones:
-				if 2 <= len(context.selected_bones):
-					flag = True
-		if flag:
+		if eval(f"bpy.ops.{CopyBoneRelationsSettings.bl_idname}.poll()"):
 			self.layout.operator(CopyBoneRelationsSettings.bl_idname, icon='COPY_ID')
 	if (context.preferences.addons[__name__.partition('.')[0]].preferences.use_disabled_menu):
 		self.layout.operator('wm.toggle_menu_enable', icon='CANCEL').id = __name__.split('.')[-1]
