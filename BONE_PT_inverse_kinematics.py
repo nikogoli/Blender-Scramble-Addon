@@ -105,7 +105,7 @@ class ReverseIkMinMax(bpy.types.Operator):
 	def draw(self, context):
 		row = self.layout.row()
 		row.label(text="")
-		for p in ['is_x','is_y','is_y']:
+		for p in ['is_x','is_y','is_z']:
 			row.prop(self, p)
 
 	def execute(self, context):
