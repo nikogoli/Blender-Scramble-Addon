@@ -20,8 +20,8 @@ class CopyBoneTransform(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if (context.selected_pose_bones):
-			if (2 <= len(context.selected_pose_bones)):
+		if context.selected_pose_bones is not None:
+			if len(context.selected_pose_bones) >= 2:
 				return True
 		return False
 
@@ -68,12 +68,9 @@ class CopyTransformLockSettings(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		ob = context.active_object
-		if ob:
-			if ob.type == 'ARMATURE':
-				if 'selected_pose_bones' in dir(context):
-					if 2 <= len(context.selected_pose_bones):
-						return True
+		if context.selected_pose_bones is not None:
+			if len(context.selected_pose_bones) >= 2:
+				return True
 		return False
 
 	def invoke(self, context, event):
@@ -145,15 +142,15 @@ def IsMenuEnable(self_id):
 # メニューを登録する関数
 def menu(self, context):
 	if (IsMenuEnable(__name__.split('.')[-1])):
-		row = self.layout.row(align=True)
-		op = row.operator(CopyBoneTransform.bl_idname, icon='CON_LOCLIKE', text="Copy Location")
-		op.copy_location, op.copy_rotation, op.copy_scale = True, False, False
-		op = row.operator(CopyBoneTransform.bl_idname, icon='CON_ROTLIKE', text="Copy Rotation")
-		op.copy_location, op.copy_rotation, op.copy_scale = False, True, False
-		op = row.operator(CopyBoneTransform.bl_idname, icon='CON_SIZELIKE', text="Copy Scale")
-		op.copy_location, op.copy_rotation, op.copy_scale = False, False, True
-		if context.selected_pose_bones:
-			if 2 <= len(context.selected_pose_bones):
+		if context.mode == 'POSE':
+			row = self.layout.row(align=True)
+			op = row.operator(CopyBoneTransform.bl_idname, icon='CON_LOCLIKE', text="Copy Location")
+			op.copy_location, op.copy_rotation, op.copy_scale = True, False, False
+			op = row.operator(CopyBoneTransform.bl_idname, icon='CON_ROTLIKE', text="Copy Rotation")
+			op.copy_location, op.copy_rotation, op.copy_scale = False, True, False
+			op = row.operator(CopyBoneTransform.bl_idname, icon='CON_SIZELIKE', text="Copy Scale")
+			op.copy_location, op.copy_rotation, op.copy_scale = False, False, True
+			if eval(f"bpy.ops.{CopyTransformLockSettings.bl_idname}.poll()"):
 				self.layout.operator(CopyTransformLockSettings.bl_idname, icon='COPY_ID')
 	if (context.preferences.addons[__name__.partition('.')[0]].preferences.use_disabled_menu):
 		self.layout.operator('wm.toggle_menu_enable', icon='CANCEL').id = __name__.split('.')[-1]
