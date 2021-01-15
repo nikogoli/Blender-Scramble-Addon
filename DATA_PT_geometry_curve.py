@@ -29,13 +29,10 @@ class CopyGeometrySettings(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if context.active_object:
-			if context.active_object.type == 'CURVE':
-				if 2 <= len(context.selected_objects):
-					for ob in context.selected_objects:
-						if context.active_object.name != ob.name:
-							if ob.type == 'CURVE':
-								return True
+		if len(context.selected_objects) >= 2:
+			curves = [ob for ob in context.selected_objects if ob.type=='CURVE']
+			if len(curves) >= 2:
+				return True
 		return False
 
 	def invoke(self, context, event):
@@ -143,10 +140,8 @@ class ActivateTaperObject(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		ob = context.active_object
-		if ob.type == 'CURVE':
-			if ob.data.taper_object:
-				return True
+		if context.active_object.data.taper_object is not None:
+			return True
 		return False
 
 	def make_collec_dic(self, layer_collection, dictionary):
@@ -179,10 +174,8 @@ class ActivateBevelObject(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		ob = context.active_object
-		if ob.type == 'CURVE':
-			if ob.data.bevel_object:
-				return True
+		if context.active_object.data.bevel_object is not None:
+			return True
 		return False
 
 	def make_collec_dic(self, layer_collection, dictionary):
@@ -215,11 +208,9 @@ class ActivateTaperParentObject(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		ob = context.active_object
-		for curve in bpy.data.curves:
-			target_name = curve.taper_object.name if curve.taper_object else ""
-			if target_name == ob.name:
-				return True
+		taper_objs = [c.taper_object for c in bpy.data.curves if c.taper_object]
+		if context.active_object in taper_objs:
+			return True
 		return False
 
 	def make_collec_dic(self, layer_collection, dictionary):
@@ -257,11 +248,9 @@ class ActivateBevelParentObject(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		ob = context.active_object
-		for curve in bpy.data.curves:
-			target_name = curve.bevel_object.name if curve.bevel_object else ""
-			if target_name == ob.name:
-				return True
+		bevel_objs = [c.bevel_object for c in bpy.data.curves if c.bevel_object]
+		if context.active_object in bevel_objs:
+			return True
 		return False
 
 	def make_collec_dic(self, layer_collection, dictionary):
@@ -305,6 +294,14 @@ class ChangeObjectResolution(bpy.types.Operator):
 			description=ps["render_resolution_u"].description,
 			min=0, max=1024, default=0)
 	is_taper : BoolProperty(name="Taper", default=False, options={'HIDDEN'})
+
+	@classmethod
+	def poll(cls, context):
+		if context.active_object.data.taper_object is not None:
+			return True
+		elif context.active_object.data.bevel_object is not None:
+			return True
+		return False
 
 	def invoke(self, context, event):
 		return context.window_manager.invoke_props_popup(self, event)
@@ -354,29 +351,27 @@ def IsMenuEnable(self_id):
 # メニューを登録する関数
 def menu(self, context):
 	if (IsMenuEnable(__name__.split('.')[-1])):
-		if context.active_object:
-			data = context.active_object.data
-			if data.taper_object:
-				box = self.layout.box()
-				sp = box.split(factor=0.4)
-				sp.label(text="Taper Object", icon='PARTICLE_PATH')
-				sp.operator(ActivateTaperObject.bl_idname, text="Activate", icon='RESTRICT_SELECT_OFF')
-				sp.operator(ChangeObjectResolution.bl_idname, text="Resolution", icon='CURVE_DATA')
-			if data.bevel_object:
-				if not data.taper_object:
-					box = self.layout.box()
-				sp = box.split(factor=0.4)
-				sp.label(text="Bevel Object", icon='OUTLINER_OB_SURFACE')
-				sp.operator(ActivateBevelObject.bl_idname, text="Activate", icon='RESTRICT_SELECT_OFF')
-				sp.operator(ChangeObjectResolution.bl_idname, text="Resolution", icon='CURVE_DATA')
-		taper_objs = [c.taper_object for c in bpy.data.curves if c.taper_object]
-		bevel_objs = [c.bevel_object for c in bpy.data.curves if c.bevel_object]
-		if context.active_object in taper_objs + bevel_objs:
+		if eval(f"bpy.ops.{ActivateTaperObject.bl_idname}.poll()"):
+			box = self.layout.box()
+			sp = box.split(factor=0.4)
+			sp.label(text="Taper Object", icon='PARTICLE_PATH')
+			sp.operator(ActivateTaperObject.bl_idname, text="Activate", icon='RESTRICT_SELECT_OFF')
+			sp.operator(ChangeObjectResolution.bl_idname, text="Resolution", icon='CURVE_DATA')
+		else:
+			box = None
+		if eval(f"bpy.ops.{ActivateBevelObject.bl_idname}.poll()"):
+			box = self.layout.box() if box is None else box
+			sp = box.split(factor=0.4)
+			sp.label(text="Bevel Object", icon='OUTLINER_OB_SURFACE')
+			sp.operator(ActivateBevelObject.bl_idname, text="Activate", icon='RESTRICT_SELECT_OFF')
+			sp.operator(ChangeObjectResolution.bl_idname, text="Resolution", icon='CURVE_DATA')
+		if eval(f"bpy.ops.{ActivateTaperParentObject.bl_idname}.poll()") or \
+				eval(f"bpy.ops.{ActivateBevelParentObject.bl_idname}.poll()"):
 			row = self.layout.box().split(factor=0.5)
 			row.label(text="Activate Object Using This For")
 			row.operator(ActivateTaperParentObject.bl_idname, icon='PARTICLE_PATH', text="Taper")
 			row.operator(ActivateBevelParentObject.bl_idname, icon='OUTLINER_OB_SURFACE', text="Bevel")
-		if 2 <= len([ob.type for ob in context.selected_objects if ob.type=='CURVE']):
+		if eval(f"bpy.ops.{CopyGeometrySettings.bl_idname}.poll()"):
 			self.layout.operator(CopyGeometrySettings.bl_idname, icon='COPY_ID')
 	if (context.preferences.addons[__name__.partition('.')[0]].preferences.use_disabled_menu):
 		self.layout.operator('wm.toggle_menu_enable', icon='CANCEL').id = __name__.split('.')[-1]
