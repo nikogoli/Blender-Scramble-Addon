@@ -18,7 +18,7 @@ class ApplyAllModifiers(bpy.types.Operator):
 	@classmethod
 	def poll(cls, context):
 		for obj in context.selected_objects:
-			for mod in obj.modifiers:
+			if obj.modifiers:
 				return True
 		return False
 
@@ -37,7 +37,7 @@ class DeleteAllModifiers(bpy.types.Operator):
 	@classmethod
 	def poll(cls, context):
 		for obj in context.selected_objects:
-			for mod in obj.modifiers:
+			if obj.modifiers:
 				return True
 		return False
 
@@ -56,9 +56,8 @@ class ToggleApplyModifiersView(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if context.active_object:
-			for mod in context.active_object.modifiers:
-				return True
+		if context.active_object.modifiers:
+			return True
 		return False
 
 	def execute(self, context):
@@ -94,7 +93,7 @@ class SyncShowModifiers(bpy.types.Operator):
 	@classmethod
 	def poll(cls, context):
 		for obj in context.selected_objects:
-			for mod in obj.modifiers:
+			if obj.modifiers:
 				return True
 		return False
 	def invoke(self, context, event):
@@ -127,9 +126,8 @@ class ToggleAllShowExpanded(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if context.active_object:
-			for mod in context.active_object.modifiers:
-				return True
+		if  context.active_object.modifiers:
+			return True
 		return False
 
 	def execute(self, context):
@@ -201,7 +199,7 @@ class AutoRenameModifiers(bpy.types.Operator):
 	@classmethod
 	def poll(cls, context):
 		for obj in context.selected_objects:
-			for mod in obj.modifiers:
+			if obj.modifiers:
 				return True
 		return False
 
@@ -321,9 +319,8 @@ class SetRenderSubsurfLevel(bpy.types.Operator):
 	@classmethod
 	def poll(cls, context):
 		for obj in context.selected_objects:
-			for mod in obj.modifiers:
-				if mod.type == 'SUBSURF':
-					return True
+			if 'SUBSURF' in [m.type for m in obj.modifiers]:
+				return True
 		return False
 	def invoke(self, context, event):
 		return context.window_manager.invoke_props_popup(self, event)
@@ -365,9 +362,8 @@ class SetViewportSubsurfLevel(bpy.types.Operator):
 	@classmethod
 	def poll(cls, context):
 		for obj in context.selected_objects:
-			for mod in obj.modifiers:
-				if mod.type == 'SUBSURF':
-					return True
+			if 'SUBSURF' in [m.type for m in obj.modifiers]:
+				return True
 		return False
 	def invoke(self, context, event):
 		return context.window_manager.invoke_props_popup(self, event)
@@ -410,9 +406,8 @@ class EqualizeSubsurfLevel(bpy.types.Operator):
 	@classmethod
 	def poll(cls, context):
 		for obj in context.selected_objects:
-			for mod in obj.modifiers:
-				if mod.type == 'SUBSURF':
-					return True
+			if 'SUBSURF' in [m.type for m in obj.modifiers]:
+				return True
 		return False
 
 	def invoke(self, context, event):
@@ -448,9 +443,8 @@ class SetSubsurfOptimalDisplay(bpy.types.Operator):
 	@classmethod
 	def poll(cls, context):
 		for obj in context.selected_objects:
-			for mod in obj.modifiers:
-				if mod.type == 'SUBSURF':
-					return True
+			if 'SUBSURF' in [m.type for m in obj.modifiers]:
+				return True
 		return False
 
 	def invoke(self, context, event):
@@ -492,9 +486,8 @@ class DeleteSubsurf(bpy.types.Operator):
 	@classmethod
 	def poll(cls, context):
 		for obj in context.selected_objects:
-			for mod in obj.modifiers:
-				if mod.type == 'SUBSURF':
-					return True
+			if 'SUBSURF' in [m.type for m in obj.modifiers]:
+				return True
 		return False
 
 	def execute(self, context):
@@ -524,7 +517,7 @@ class AddSubsurf(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if len(context.selected_objects):
+		if context.selected_objects:
 			return True
 		return False
 
@@ -555,9 +548,8 @@ class SetArmatureDeformPreserveVolume(bpy.types.Operator):
 	@classmethod
 	def poll(cls, context):
 		for obj in context.selected_objects:
-			for mod in obj.modifiers:
-				if mod.type == 'ARMATURE':
-					return True
+			if 'ARMATURE' in [m.type for m in obj.modifiers]:
+				return True
 		return False
 
 	def invoke(self, context, event):
@@ -805,30 +797,28 @@ def IsMenuEnable(self_id):
 # メニューを登録する関数
 def menu(self, context):
 	if (IsMenuEnable(__name__.split('.')[-1])):
-		if (context.active_object):
-			if (len(context.active_object.modifiers)):
-				col = self.layout.column(align=True)
-				row = col.row(align=True)
-				row.operator(AutoRenameModifiers.bl_idname, icon='SCRIPT', text="Rename All")
-				row.operator(ApplyAllModifiers.bl_idname, icon='IMPORT', text="Apply All")
-				row.operator(DeleteAllModifiers.bl_idname, icon='X', text="Delete All")
-				row = col.row(align=True)
-				row.operator(ToggleApplyModifiersView.bl_idname, icon='RESTRICT_VIEW_OFF', text="Show / Hide")
-				row.operator(ToggleAllShowExpanded.bl_idname, icon='FULLSCREEN_ENTER', text="Expand / Close")
-				row.operator(SyncShowModifiers.bl_idname, icon='LINKED', text="Display Setting")
-
+		if context.active_object.modifiers:
+			col = self.layout.column(align=True)
+			row = col.row(align=True)
+			row.operator(AutoRenameModifiers.bl_idname, icon='SCRIPT', text="Rename All")
+			row.operator(ApplyAllModifiers.bl_idname, icon='IMPORT', text="Apply All")
+			row.operator(DeleteAllModifiers.bl_idname, icon='X', text="Delete All")
+			row = col.row(align=True)
+			row.operator(ToggleApplyModifiersView.bl_idname, icon='RESTRICT_VIEW_OFF', text="Show / Hide")
+			row.operator(ToggleAllShowExpanded.bl_idname, icon='FULLSCREEN_ENTER', text="Expand / Close")
+			row.operator(SyncShowModifiers.bl_idname, icon='LINKED', text="Display Setting")
 		sp = self.layout.split(factor=0.9)
 		row = sp.row(align=True)
 		row_sub = row.row(align=True)
 		row_sub.menu(SubsurfMenu.bl_idname, text="Subsurf",icon="MOD_SUBSURF")
 		row_sub = row.row(align=True)
-		row_sub.active = len([m for m in bpy.context.object.modifiers if m.type == "ARMATURE"])
+		#row_sub.active = len([m for m in bpy.context.object.modifiers if m.type == "ARMATURE"])
 		row_sub.menu(ArmatureMenu.bl_idname, text="Armature",icon="OUTLINER_DATA_ARMATURE")
 		row_sub = row.row(align=True)
-		row_sub.active = (len(bpy.context.selected_objects) >= 2)
+		#row_sub.active = (len(bpy.context.selected_objects) >= 2)
 		row_sub.menu(BooleanMenu.bl_idname, text="Boolean",icon="MOD_BOOLEAN")
 		row_sub = row.row(align=True)
-		row_sub.active = bool(bool(len(bpy.context.selected_objects) >= 2) and bool([o for o in bpy.context.selected_objects if o.type == "CURVE"]))
+		#row_sub.active = bool(bool(len(bpy.context.selected_objects) >= 2) and bool([o for o in bpy.context.selected_objects if o.type == "CURVE"]))
 		row_sub.menu(CurveMenu.bl_idname, text="Curve",icon="CURVE_DATA")
 		sp.operator(ApplyModifiersAndJoin.bl_idname, text="Join")
 	if (bpy.context.preferences.addons[__name__.partition('.')[0]].preferences.use_disabled_menu):
