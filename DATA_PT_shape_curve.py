@@ -27,13 +27,10 @@ class CopyCurveShapeSetting(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		ob = context.active_object
-		if ob:
-			if ob.type == 'CURVE':
-				for obj in context.selected_objects:
-					if ob.name != obj.name:
-						if obj.type == 'CURVE':
-							return True
+		if len(context.selected_objects) >= 2:
+			curves = [ob for ob in context.selected_objects if ob.type=='CURVE']
+			if len(curves) >= 2:
+				return True
 		return False
 
 	def invoke(self, context, event):
@@ -119,7 +116,7 @@ def IsMenuEnable(self_id):
 # メニューを登録する関数
 def menu(self, context):
 	if (IsMenuEnable(__name__.split('.')[-1])):
-		if 2 <= len(context.selected_objects):
+		if eval(f"bpy.ops.{CopyCurveShapeSetting.bl_idname}"):
 			self.layout.operator(CopyCurveShapeSetting.bl_idname, icon='COPY_ID')
 	if (context.preferences.addons[__name__.partition('.')[0]].preferences.use_disabled_menu):
 		self.layout.operator('wm.toggle_menu_enable', icon='CANCEL').id = __name__.split('.')[-1]
