@@ -18,13 +18,10 @@ class MoveActivePose(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if (not context.object):
-			return False
-		if (not context.object.pose_library):
-			return False
-		if (len(context.object.pose_library.pose_markers) < 2):
-			return False
-		return True
+		if context.active_object.pose_library is not None:
+			if len(context.object.pose_library.pose_markers) >= 2:
+				return True
+		return False
 
 	def execute(self, context):
 		pose_markers = context.object.pose_library.pose_markers
@@ -59,13 +56,10 @@ class MoveActivePoseMost(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if (not context.object):
-			return False
-		if (not context.object.pose_library):
-			return False
-		if (len(context.object.pose_library.pose_markers) < 2):
-			return False
-		return True
+		if context.active_object.pose_library is not None:
+			if len(context.object.pose_library.pose_markers) >= 2:
+				return True
+		return False
 
 	def execute(self, context):
 		pose_markers = context.object.pose_library.pose_markers
@@ -110,16 +104,14 @@ def IsMenuEnable(self_id):
 # メニューを登録する関数
 def menu(self, context):
 	if (IsMenuEnable(__name__.split('.')[-1])):
-		if (context.object):
-			if (context.object.pose_library):
-				if (len(context.object.pose_library.pose_markers)):
-					sp = self.layout.split(factor=0.15)
-					row = sp.row()
-					row.alignment = 'CENTER'
-					row.operator(MoveActivePose.bl_idname, icon='TRIA_UP', text="").is_up = True
-					row.operator(MoveActivePose.bl_idname, icon='TRIA_DOWN', text="").is_up = False
-					row = sp.row()
-					row.operator(MoveActivePoseMost.bl_idname, icon='TRIA_UP_BAR', text="Move to Top").is_top = True
-					row.operator(MoveActivePoseMost.bl_idname, icon='TRIA_DOWN_BAR', text="Move to Bottom").is_top = False
+		if eval(f"bpy.ops.{MoveActivePose.bl_idname}.poll()"):
+			sp = self.layout.split(factor=0.15)
+			row = sp.row()
+			row.alignment = 'CENTER'
+			row.operator(MoveActivePose.bl_idname, icon='TRIA_UP', text="").is_up = True
+			row.operator(MoveActivePose.bl_idname, icon='TRIA_DOWN', text="").is_up = False
+			row = sp.row()
+			row.operator(MoveActivePoseMost.bl_idname, icon='TRIA_UP_BAR', text="Move to Top").is_top = True
+			row.operator(MoveActivePoseMost.bl_idname, icon='TRIA_DOWN_BAR', text="Move to Bottom").is_top = False
 	if (context.preferences.addons[__name__.partition('.')[0]].preferences.use_disabled_menu):
 		self.layout.operator('wm.toggle_menu_enable', icon='CANCEL').id = __name__.split('.')[-1]
