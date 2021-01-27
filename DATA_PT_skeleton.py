@@ -15,13 +15,6 @@ class ShowAllBoneLayers(bpy.types.Operator):
 	bl_description = "Show all the active armature's layers"
 	bl_options = {'REGISTER'}
 
-	@classmethod
-	def poll(cls, context):
-		if (context.object):
-			if (context.object.type == 'ARMATURE'):
-				return True
-		return False
-
 	def execute(self, context):
 		context.object.data.layers = [True] * 32
 		return {'FINISHED'}
@@ -34,15 +27,6 @@ class ShowGroupLayers(bpy.types.Operator):
 
 	group_name : StringProperty(name="Bone Group", default="")
 	extend : BoolProperty(name="Extend Selection", default=False)
-
-
-	@classmethod
-	def poll(cls, context):
-		if (context.object):
-			if (context.object.type == 'ARMATURE'):
-				if (context.mode == 'POSE'):
-					return True
-		return False
 
 	def invoke(self, context, event):
 		if (event.shift):
@@ -64,6 +48,8 @@ class ShowGroupLayers(bpy.types.Operator):
 		context.active_object.scramble_sk_prop.bone_group_idx = g_idx
 
 	def execute(self, context):
+		pre_mode = 'EDIT' if context.mode=='EDIT_ARMATURE' else context.mode
+		bpy.ops.object.mode_set(mode='POSE')
 		pre_LAYERS = np.array(context.object.data.layers, dtype=np.float16)
 		target = context.active_object.pose.bone_groups[self.group_name]
 		target_idx = context.active_object.pose.bone_groups.find(target.name)
@@ -91,6 +77,7 @@ class ShowGroupLayers(bpy.types.Operator):
 			self.update_group_idx(context, target_idx, 'NEW')
 		context.object.data.layers = LAYERS
 		bpy.ops.pose.select_all(action='DESELECT')
+		bpy.ops.object.mode_set(mode=pre_mode)
 		return {'FINISHED'}
 
 class ScrambleSkeltonPropGroup(bpy.types.PropertyGroup):
