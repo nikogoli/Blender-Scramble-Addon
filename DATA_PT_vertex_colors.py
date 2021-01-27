@@ -22,11 +22,8 @@ class MoveActiveVertexColor(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		obj = context.active_object
-		if (obj):
-			if (obj.type == 'MESH'):
-				if (2 <= len(obj.data.vertex_colors)):
-					return True
+		if len(context.active_object.data.vertex_colors) >= 2:
+			return True
 		return False
 
 	def execute(self, context):
@@ -70,11 +67,8 @@ class VertexColorSet(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		obj = context.active_object
-		if (obj):
-			if (obj.type == 'MESH'):
-				if (obj.data.vertex_colors.active):
-					return True
+		if context.active_object.data.vertex_colors:
+			return True
 		return False
 
 	def invoke(self, context, event):
@@ -99,13 +93,6 @@ class AddVertexColorSelectedObject(bpy.types.Operator):
 
 	name : StringProperty(name="Name", default="Col")
 	color : FloatVectorProperty(name="Vertex Color", default=(1, 1, 1, 1), min=0, max=1, soft_min=0, soft_max=1, step=10, precision=3, subtype='COLOR_GAMMA', size=4)
-
-	@classmethod
-	def poll(cls, context):
-		for obj in context.selected_objects:
-			if (obj.type == 'MESH'):
-				return True
-		return False
 
 	def invoke(self, context, event):
 		return context.window_manager.invoke_props_dialog(self)
@@ -157,12 +144,10 @@ def IsMenuEnable(self_id):
 def menu(self, context):
 	if (IsMenuEnable(__name__.split('.')[-1])):
 		row = self.layout.row()
-		if (context.active_object.type == 'MESH'):
-			if (context.active_object.data.vertex_colors.active):
-				sub = row.row(align=True)
-				sub.operator(MoveActiveVertexColor.bl_idname, icon='TRIA_UP', text="").mode = 'UP'
-				sub.operator(MoveActiveVertexColor.bl_idname, icon='TRIA_DOWN', text="").mode = 'DOWN'
-				row.operator(VertexColorSet.bl_idname, icon='BRUSH_DATA', text="Fill Vertices")
-				row.operator(AddVertexColorSelectedObject.bl_idname, icon='PLUGIN', text="Add Together")
+		sub = row.row(align=True)
+		sub.operator(MoveActiveVertexColor.bl_idname, icon='TRIA_UP', text="").mode = 'UP'
+		sub.operator(MoveActiveVertexColor.bl_idname, icon='TRIA_DOWN', text="").mode = 'DOWN'
+		row.operator(VertexColorSet.bl_idname, icon='BRUSH_DATA', text="Fill Vertices")
+		row.operator(AddVertexColorSelectedObject.bl_idname, icon='PLUGIN', text="Add Together")
 	if (context.preferences.addons[__name__.partition('.')[0]].preferences.use_disabled_menu):
 		self.layout.operator('wm.toggle_menu_enable', icon='CANCEL').id = __name__.split('.')[-1]
