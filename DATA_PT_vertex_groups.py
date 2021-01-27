@@ -17,11 +17,8 @@ class RemoveEmptyVertexGroups(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		ob = context.active_object
-		if (ob):
-			if (ob.type == 'MESH'):
-				if (len(ob.vertex_groups)):
-					return True
+		if context.active_object.vertex_groups:
+			return True
 		return False
 
 	def execute(self, context):
@@ -48,11 +45,8 @@ class RemoveSpecifiedStringVertexGroups(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		ob = context.active_object
-		if (ob):
-			if (ob.type == 'MESH'):
-				if (len(ob.vertex_groups)):
-					return True
+		if context.active_object.vertex_groups:
+			return True
 		return False
 
 	def execute(self, context):
@@ -72,11 +66,8 @@ class SelectActiveGroupOnly(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		ob = context.active_object
-		if (ob):
-			if (ob.type == 'MESH'):
-				if (2 <= len(ob.vertex_groups)):
-					return True
+		if context.active_object.vertex_groups:
+			return True
 		return False
 
 	def execute(self, context):
@@ -97,11 +88,8 @@ class CleanVertexforMenu(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		ob = context.active_object
-		if (ob):
-			if (ob.type == 'MESH'):
-				if (len(ob.vertex_groups)):
-					return True
+		if context.active_object.vertex_groups:
+			return True
 		return False
 	def invoke(self, context, event):
 		return context.window_manager.invoke_props_dialog(self)
@@ -177,30 +165,24 @@ def IsMenuEnable(self_id):
 # メニューを登録する関数
 def menu(self, context):
 	if (IsMenuEnable(__name__.split('.')[-1])):
-		try:
-			ob = context.active_object
-			is_active = (len(ob.vertex_groups) > 0)
-		except AttributeError as e:
-			is_active = False
-		row = self.layout.row()
-		rowrow = row.row(align=True)
-		op = rowrow.operator('object.vertex_group_sort', text="", icon='SORTALPHA')
-		op.sort_type = 'NAME'		
-		op = rowrow.operator('object.vertex_group_sort', text="", icon='BONE_DATA')
-		op.sort_type = 'BONE_HIERARCHY'
-		if context.active_object and context.active_object.mode == 'EDIT':
-			sp = row.split(factor=0.87)
-			spsp = sp.split(factor=0.57)
-			spsp.operator('object.vertex_group_assign_new', text="With Selected Vetices", icon='PLUS')
-			spsp.operator(SelectActiveGroupOnly.bl_idname, icon='VERTEXSEL')
-			spsp = sp.split(factor=1)
-			spsp.menu(RemoveVertexGroupMenu.bl_idname, text="", icon='CANCEL')
-			spsp.active = is_active
-		else:
-			sp = row.split(factor=0.6)
-			sp.menu(RemoveVertexGroupMenu.bl_idname, icon='CANCEL')
-			sp.operator('mesh.copy_mirror_vertex_groups', text="Add Mirrored", icon='MOD_MIRROR')# MESH_MT_group_specials で定義
-			sp.active = is_active
+		if len(context.active_object.vertex_groups) or context.mode == 'EDIT_MESH':
+			row = self.layout.row()
+			rowrow = row.row(align=True)
+			op = rowrow.operator('object.vertex_group_sort', text="", icon='SORTALPHA')
+			op.sort_type = 'NAME'		
+			op = rowrow.operator('object.vertex_group_sort', text="", icon='BONE_DATA')
+			op.sort_type = 'BONE_HIERARCHY'
+			if context.mode == 'EDIT_MESH':
+				sp = row.split(factor=0.87)
+				spsp = sp.split(factor=0.57)
+				spsp.operator('object.vertex_group_assign_new', text="With Selected Vetices", icon='PLUS')
+				spsp.operator(SelectActiveGroupOnly.bl_idname, icon='VERTEXSEL')
+				spsp = sp.split(factor=1)
+				spsp.menu(RemoveVertexGroupMenu.bl_idname, text="", icon='CANCEL')
+			else:
+				sp = row.split(factor=0.6)
+				sp.menu(RemoveVertexGroupMenu.bl_idname, icon='CANCEL')
+				sp.operator('mesh.copy_mirror_vertex_groups', text="Add Mirrored", icon='MOD_MIRROR')# MESH_MT_group_specials で定義
 
 	if (context.preferences.addons[__name__.partition('.')[0]].preferences.use_disabled_menu):
 		self.layout.separator()
