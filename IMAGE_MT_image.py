@@ -19,11 +19,11 @@ class RenameImageFileName(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if (not context.edit_image):
-			return False
-		if (context.edit_image.filepath == ""):
-			return False
-		return True
+		if hasattr(context, 'edit_image'):
+			if context.edit_image is not None:
+				if context.edit_image.filepath:
+					return True
+		return False
 	def invoke(self, context, event):
 		wm = context.window_manager
 		return wm.invoke_props_dialog(self)
@@ -47,11 +47,10 @@ class AllRenameImageFileName(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if (len(bpy.data.images) <= 0):
-			return False
-		for img in bpy.data.images:
-			if (img.filepath != ""):
-				return True
+		if bpy.data.images:
+			for img in bpy.data.images:
+				if img.filepath:
+					return True
 		return False
 	def execute(self, context):
 		for img in  bpy.data.images:
@@ -71,11 +70,10 @@ class ReloadAllImage(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if (len(bpy.data.images) <= 0):
-			return False
-		for img in bpy.data.images:
-			if (img.filepath != ""):
-				return True
+		if bpy.data.images:
+			for img in bpy.data.images:
+				if img.filepath:
+					return True
 		return False
 	def execute(self, context):
 		for img in bpy.data.images:
@@ -99,9 +97,9 @@ class FillOverrideColor(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if 'edit_image' in dir(context):
-			if context.edit_image:
-				if len(context.edit_image.pixels):
+		if hasattr(context, 'edit_image'):
+			if context.edit_image is not None:
+				if context.edit_image.pixels:
 					return True
 		return False
 
@@ -130,9 +128,9 @@ class FillColor(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if 'edit_image' in dir(context):
-			if context.edit_image:
-				if len(context.edit_image.pixels):
+		if hasattr(context, 'edit_image'):
+			if context.edit_image is not None:
+				if context.edit_image.pixels:
 					return True
 		return False
 
@@ -165,13 +163,12 @@ class FillTransparency(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if (not context.edit_image):
-			return False
-		if (len(context.edit_image.pixels) <= 0):
-			return False
-		if (context.edit_image.channels < 4):
-			return False
-		return True
+		if hasattr(context, 'edit_image'):
+			if context.edit_image is not None:
+				if context.edit_image.pixels:
+					if context.edit_image.channels >= 4:
+						return True
+		return False
 	def invoke(self, context, event):
 		return context.window_manager.invoke_props_dialog(self)
 	def execute(self, context):
@@ -203,9 +200,9 @@ class Normalize(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if 'edit_image' in dir(context):
-			if context.edit_image:
-				if len(context.edit_image.pixels):
+		if hasattr(context, 'edit_image'):
+			if context.edit_image is not None:
+				if context.edit_image.pixels:
 					return True
 		return False
 
@@ -238,11 +235,11 @@ class RenameImageFile(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if (not context.edit_image):
-			return False
-		if (context.edit_image.filepath == ""):
-			return False
-		return True
+		if hasattr(context, 'edit_image'):
+			if context.edit_image is not None:
+				if context.edit_image.filepath:
+					return True
+		return False
 	def invoke(self, context, event):
 		self.new_name = bpy.path.basename(context.edit_image.filepath_raw)
 		if (self.new_name == ""):
@@ -272,9 +269,9 @@ class BlurImage(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if 'edit_image' in dir(context):
-			if context.edit_image:
-				if len(context.edit_image.pixels):
+		if hasattr(context, 'edit_image'):
+			if context.edit_image is not None:
+				if context.edit_image.pixels:
 					return True
 		return False
 
@@ -329,9 +326,9 @@ class ReverseWidthImage(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if 'edit_image' in dir(context):
-			if context.edit_image:
-				if len(context.edit_image.pixels):
+		if hasattr(context, 'edit_image'):
+			if context.edit_image is not None:
+				if context.edit_image.pixels:
 					return True
 		return False
 
@@ -356,9 +353,9 @@ class ReverseHeightImage(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if 'edit_image' in dir(context):
-			if context.edit_image:
-				if len(context.edit_image.pixels):
+		if hasattr(context, 'edit_image'):
+			if context.edit_image is not None:
+				if context.edit_image.pixels:
 					return True
 		return False
 
@@ -381,9 +378,9 @@ class Rotate90Image(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if 'edit_image' in dir(context):
-			if context.edit_image:
-				if len(context.edit_image.pixels):
+		if hasattr(context, 'edit_image'):
+			if context.edit_image is not None:
+				if context.edit_image.pixels:
 					return True
 		return False
 
@@ -409,9 +406,9 @@ class Rotate180Image(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if 'edit_image' in dir(context):
-			if context.edit_image:
-				if len(context.edit_image.pixels):
+		if hasattr(context, 'edit_image'):
+			if context.edit_image is not None:
+				if context.edit_image.pixels:
 					return True
 		return False
 
@@ -435,9 +432,9 @@ class Rotate270Image(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if 'edit_image' in dir(context):
-			if context.edit_image:
-				if len(context.edit_image.pixels):
+		if hasattr(context, 'edit_image'):
+			if context.edit_image is not None:
+				if context.edit_image.pixels:
 					return True
 		return False
 
@@ -465,9 +462,10 @@ class ExternalEditEX(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if (not context.edit_image):
-			return False
-		return True
+		if hasattr(context, 'edit_image'):
+			if context.edit_image is not None:
+				return True
+		return False
 
 	def execute(self, context):
 		img = context.edit_image
@@ -517,9 +515,9 @@ class Resize(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if 'edit_image' in dir(context):
-			if context.edit_image:
-				if len(context.edit_image.pixels):
+		if hasattr(context, 'edit_image'):
+			if context.edit_image is not None:
+				if context.edit_image.pixels:
 					return True
 		return False
 
@@ -543,9 +541,9 @@ class Duplicate(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if 'edit_image' in dir(context):
-			if context.edit_image:
-				if len(context.edit_image.pixels):
+		if hasattr(context, 'edit_image'):
+			if context.edit_image is not None:
+				if context.edit_image.pixels:
 					return True
 		return False
 
@@ -658,9 +656,9 @@ class Tiles(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if 'edit_image' in dir(context):
-			if context.edit_image:
-				if len(context.edit_image.pixels):
+		if hasattr(context, 'edit_image'):
+			if context.edit_image is not None:
+				if context.edit_image.pixels:
 					return True
 		return False
 
@@ -710,9 +708,9 @@ class ResizeBlur(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if 'edit_image' in dir(context):
-			if context.edit_image:
-				if len(context.edit_image.pixels):
+		if hasattr(context, 'edit_image'):
+			if context.edit_image is not None:
+				if context.edit_image.pixels:
 					return True
 		return False
 
@@ -780,9 +778,9 @@ class Decolorization(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if 'edit_image' in dir(context):
-			if context.edit_image:
-				if len(context.edit_image.pixels):
+		if hasattr(context, 'edit_image'):
+			if context.edit_image is not None:
+				if context.edit_image.pixels:
 					return True
 		return False
 
@@ -824,9 +822,9 @@ class Clipping(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if 'edit_image' in dir(context):
-			if context.edit_image:
-				if len(context.edit_image.pixels):
+		if hasattr(context, 'edit_image'):
+			if context.edit_image is not None:
+				if context.edit_image.pixels:
 					return True
 		return False
 
