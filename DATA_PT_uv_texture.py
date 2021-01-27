@@ -19,9 +19,9 @@ class RenameSpecificNameUV(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if (len(context.selected_objects) == 0):
-			return False
-		return True
+		if context.active_object.data.uv_layers:
+			return True
+		return False
 
 	def execute(self, context):
 		for obj in context.selected_objects:
@@ -46,9 +46,9 @@ class DeleteSpecificNameUV(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if (len(context.selected_objects) == 0):
-			return False
-		return True
+		if context.active_object.data.uv_layers:
+			return True
+		return False
 	def execute(self, context):
 		for obj in context.selected_objects:
 			if (obj.type != 'MESH'):
@@ -69,15 +69,9 @@ class RemoveUnselectedUV(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		obj = context.active_object
-		if (not obj):
-			return False
-		if (obj.type != 'MESH'):
-			return False
-		me = obj.data
-		if (len(me.uv_layers) == 0):
-			return False
-		return True
+		if len(context.active_object.data.uv_layers) >= 2:
+			return True
+		return False
 
 	def execute(self, context):
 		me = context.active_object.data
@@ -104,15 +98,10 @@ class MoveActiveUV(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		obj = context.active_object
-		if (not obj):
-			return False
-		if (obj.type != 'MESH'):
-			return False
-		me = obj.data
-		if (len(me.uv_layers) <= 1):
-			return False
-		return True
+		if len(context.active_object.data.uv_layers) >= 2:
+			return True
+		return False
+
 	def execute(self, context):
 		obj = context.active_object
 		me = obj.data
@@ -204,13 +193,12 @@ def IsMenuEnable(self_id):
 # メニューを登録する関数
 def menu(self, context):
 	if (IsMenuEnable(__name__.split('.')[-1])):
-		if (context.active_object.type == 'MESH'):
-			if (context.active_object.data.uv_layers.active):
-				row = self.layout.row()
-				sub = row.row(align=True)
-				sub.operator(MoveActiveUV.bl_idname, icon='TRIA_UP', text="").mode = 'UP'
-				sub.operator(MoveActiveUV.bl_idname, icon='TRIA_DOWN', text="").mode = 'DOWN'
-				row.operator(RemoveUnselectedUV.bl_idname, icon="PLUGIN")
-				row.menu(UVMenu.bl_idname, icon="PLUGIN")
+		if context.active_object.data.uv_layers:
+			row = self.layout.row()
+			sub = row.row(align=True)
+			sub.operator(MoveActiveUV.bl_idname, icon='TRIA_UP', text="").mode = 'UP'
+			sub.operator(MoveActiveUV.bl_idname, icon='TRIA_DOWN', text="").mode = 'DOWN'
+			row.operator(RemoveUnselectedUV.bl_idname, icon="PLUGIN")
+			row.menu(UVMenu.bl_idname, icon="PLUGIN")
 	if (context.preferences.addons[__name__.partition('.')[0]].preferences.use_disabled_menu):
 		self.layout.operator('wm.toggle_menu_enable', icon='CANCEL').id = __name__.split('.')[-1]
