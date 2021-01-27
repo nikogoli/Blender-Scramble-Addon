@@ -16,11 +16,8 @@ class InsertKeyframeAllShapes(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		ob = context.active_object
-		if (ob):
-			if ob.type in {'MESH','CURVE'}:
-				if (ob.active_shape_key):
-					return True
+		if context.active_object.active_shape_key is not None:
+			return True
 		return False
 
 	def execute(self, context):
@@ -53,11 +50,8 @@ class InsertKeyframeWithInverval(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		ob = context.active_object
-		if (ob):
-			if ob.type in {'MESH','CURVE'}:
-				if (ob.active_shape_key):
-					return True
+		if context.active_object.active_shape_key is not None:
+			return True
 		return False
 	def invoke(self, context, event):
 		return context.window_manager.invoke_props_dialog(self, width=360)
@@ -127,11 +121,8 @@ class InsertKeyframeToActiveQuick(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		ob = context.active_object
-		if (ob):
-			if ob.type in {'MESH','CURVE'}:
-				if (ob.active_shape_key):
-					return True
+		if context.active_object.active_shape_key is not None:
+			return True
 		return False
 	def invoke(self, context, event):
 		return context.window_manager.invoke_props_dialog(self, width=350)
@@ -178,12 +169,9 @@ class ShapeKeyApplyRemoveAll(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		ob = context.active_object
-		if (ob) and ob.mode == 'OBJECT':
-			if ob.type in {'MESH','CURVE'}:
-				if (ob.data.shape_keys):
-					if (2 <= len(ob.data.shape_keys.key_blocks)):
-						return True
+		if context.active_object.data.shape_keys is not None:
+			if len(context.active_object.data.shape_keys.key_blocks) >= 2:
+				return True
 		return False
 
 	def execute(self, context):
@@ -202,12 +190,9 @@ class ShapeKeyApplySwitchBasis(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		ob = context.active_object
-		if ob and ob.mode == 'OBJECT':
-			if ob.type in {'MESH','CURVE'}:
-				if (ob.data.shape_keys):
-					if (2 <= len(ob.data.shape_keys.key_blocks)):
-						return True
+		if context.active_object.data.shape_keys is not None:
+			if len(context.active_object.data.shape_keys.key_blocks) >= 2:
+				return True
 		return False
 
 	def execute(self, context):
@@ -232,12 +217,9 @@ class ShapeKeyMergeAll(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		ob = context.active_object
-		if ob and ob.mode == 'OBJECT':
-			if ob.type in {'MESH','CURVE'}:
-				if (ob.data.shape_keys):
-					if (3 <= len(ob.data.shape_keys.key_blocks)):
-						return True
+		if context.active_object.data.shape_keys is not None:
+			if len(context.active_object.data.shape_keys.key_blocks) >= 3:
+				return True
 		return False
 
 	def execute(self, context):
@@ -263,13 +245,10 @@ class ShapeKeyMergeAbove(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		ob = context.active_object
-		if ob and ob.mode == 'OBJECT':
-			if ob.type in {'MESH','CURVE'}:
-				if (ob.data.shape_keys):
-					if (4 <= len(ob.data.shape_keys.key_blocks)):
-						if 3 <= ob.active_shape_key_index:
-							return True
+		if context.active_object.data.shape_keys is not None:
+			if len(context.active_object.data.shape_keys.key_blocks) >= 3:
+				if context.active_object.active_shape_key_index >= 2:
+					return True
 		return False
 
 	def execute(self, context):
@@ -314,12 +293,9 @@ class MuteAllShapeKeys(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		ob = context.active_object
-		if ob:
-			if ob.type in {'MESH','CURVE'}:
-				if ob.data.shape_keys:
-					if len(ob.data.shape_keys.key_blocks):
-						return True
+		if context.active_object.data.shape_keys is not None:
+			if context.active_object.data.shape_keys.key_blocks:
+				return True
 		return False
 
 	def execute(self, context):
@@ -397,16 +373,14 @@ def IsMenuEnable(self_id):
 # メニューを登録する関数
 def menu_prepend(self, context):
 	if (IsMenuEnable(__name__.split('.')[-1])):
-		if context.active_object:
-			obj = context.active_object
-			if obj.type == 'MESH' and obj.data.shape_keys:
-				row = self.layout.row()
-				rowrow = row.row(align=True)
-				op = rowrow.operator(MuteAllShapeKeys.bl_idname, text="", icon='HIDE_OFF')
-				op.mode = 'ENABLE'
-				op = rowrow.operator(MuteAllShapeKeys.bl_idname, text="", icon='HIDE_ON')
-				op.mode = 'DISABLE'
-				row.menu(MergeShapeMenu.bl_idname, icon='MOD_MESHDEFORM')
-				row.menu(InsetKeyframeMenu.bl_idname, icon='KEY_HLT')
+		if eval(f"bpy.ops.{MuteAllShapeKeys.bl_idname}.poll()"):
+			row = self.layout.row()
+			rowrow = row.row(align=True)
+			op = rowrow.operator(MuteAllShapeKeys.bl_idname, text="", icon='HIDE_OFF')
+			op.mode = 'ENABLE'
+			op = rowrow.operator(MuteAllShapeKeys.bl_idname, text="", icon='HIDE_ON')
+			op.mode = 'DISABLE'
+			row.menu(MergeShapeMenu.bl_idname, icon='MOD_MESHDEFORM')
+			row.menu(InsetKeyframeMenu.bl_idname, icon='KEY_HLT')
 	if (context.preferences.addons[__name__.partition('.')[0]].preferences.use_disabled_menu):
 		self.layout.operator('wm.toggle_menu_enable', icon='CANCEL').id = __name__.split('.')[-1]
