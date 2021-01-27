@@ -14,15 +14,6 @@ class ConvertMesh(bpy.types.Operator):
 	bl_description = "Convert the active UV to a plane mesh object"
 	bl_options = {'REGISTER', 'UNDO'}
 
-	@classmethod
-	def poll(cls, context):
-		if (not context.object):
-			return False
-		if (context.object.type != 'MESH'):
-			return False
-		if (not context.object.data.uv_layers.active):
-			return False
-		return True
 	def execute(self, context):
 		obj = context.object
 		me = obj.data
