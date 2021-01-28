@@ -15,10 +15,9 @@ class RemoveNoAssignMaterial(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		obj = context.active_object
-		if (len(obj.material_slots) <= 0):
-			return False
-		return True
+		if context.active_object.material_slots:
+			return True
+		return False
 	def execute(self, context):
 		preActiveObj = context.active_object
 		for obj in context.selected_objects:
@@ -51,10 +50,9 @@ class RemoveAllMaterialSlot(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		obj = context.active_object
-		if (len(obj.material_slots) <= 0):
-			return False
-		return True
+		if context.active_object.material_slots:
+			return True
+		return False
 	def execute(self, context):
 		activeObj = context.active_object
 		if 0 < len(activeObj.material_slots):
@@ -76,11 +74,12 @@ class RemoveEmptyMaterialSlot(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		obj = context.active_object
-		for slot in obj.material_slots:
-			if (not slot.material):
-				return True
+		if context.active_object.material_slots:
+			for slot in context.active_object.material_slots:
+				if slot.material is None:
+					return True
 		return False
+
 	def execute(self, context):
 		activeObj = context.active_object
 		if (activeObj.type == "MESH"):
@@ -102,14 +101,10 @@ class SetTransparentBackSide(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		mat = context.material
-		if (not mat):
-			return False
-		if (mat.node_tree):
-			if (len(mat.node_tree.nodes) >= 2):
-				return True
-		if (not mat.use_nodes):
-			return True
+		if context.material is not None:
+			if context.material.node_tree is not None:
+				if len(context.material.node_tree.nodes) >= 2:
+					return True
 		return False
 	def execute(self, context):
 		mat = context.material
@@ -145,14 +140,10 @@ class MoveMaterialSlotTop(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		obj = context.active_object
-		if (not obj):
-			return False
-		if (len(obj.material_slots) <= 2):
-			return False
-		if (obj.active_material_index <= 0):
-			return False
-		return True
+		if len(context.active_object.material_slots) >= 2:
+			if context.active_object.active_material_index >= 1:
+				return True
+		return False
 	def execute(self, context):
 		activeObj = context.active_object
 		for i in range(activeObj.active_material_index):
@@ -167,14 +158,10 @@ class MoveMaterialSlotBottom(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		obj = context.active_object
-		if (not obj):
-			return False
-		if (len(obj.material_slots) <= 2):
-			return False
-		if (len(obj.material_slots)-1 <= obj.active_material_index):
-			return False
-		return True
+		if len(context.active_object.material_slots) >= 2:
+			if context.active_object.active_material_index <= len(context.active_object.material_slots)-2:
+				return True
+		return False
 	def execute(self, context):
 		activeObj = context.active_object
 		lastSlotIndex = len(activeObj.material_slots) - 1
