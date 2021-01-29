@@ -20,15 +20,12 @@ class CopyAllMaterialNode(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if (not context.object):
-			return False
-		if (not context.object.active_material):
-			return False
-		if (not context.object.active_material.use_nodes):
-			return False
-		if (context.space_data.tree_type != 'ShaderNodeTree'):
-			return False
-		return True
+		if context.space_data.tree_type == 'ShaderNodeTree':
+			if context.active_object is not None:
+				if context.active_object.active_material is not None:
+					if context.object.active_material.use_nodes:
+						return True
+		return False
 	def execute(self, context):
 		activeObj = context.active_object
 		activeMat = activeObj.active_material
