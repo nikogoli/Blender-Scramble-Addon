@@ -17,11 +17,8 @@ class AddOppositeVertexGroups(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		ob = context.active_object
-		if (ob):
-			if (ob.type == 'MESH'):
-				if (len(ob.vertex_groups)):
-					return True
+		if context.active_object.vertex_groups:
+			return True
 		return False
 
 	def execute(self, context):
@@ -52,11 +49,8 @@ class SelectVertexGroupsTop(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		ob = context.active_object
-		if (ob):
-			if (ob.type == 'MESH'):
-				if (2 <= len(ob.vertex_groups)):
-					return True
+		if len(context.active_object.vertex_groups) >= 2:
+			return True
 		return False
 
 	def execute(self, context):
@@ -71,11 +65,8 @@ class SelectVertexGroupsBottom(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		ob = context.active_object
-		if (ob):
-			if (ob.type == 'MESH'):
-				if (2 <= len(ob.vertex_groups)):
-					return True
+		if len(context.active_object.vertex_groups) >= 2:
+			return True
 		return False
 
 	def execute(self, context):
@@ -90,11 +81,8 @@ class MoveVertexGroupTop(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		ob = context.active_object
-		if (ob):
-			if (ob.type == 'MESH'):
-				if (2 <= len(ob.vertex_groups)):
-					return True
+		if len(context.active_object.vertex_groups) >= 2:
+			return True
 		return False
 
 	def execute(self, context):
@@ -110,11 +98,8 @@ class MoveVertexGroupBottom(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		ob = context.active_object
-		if (ob):
-			if (ob.type == 'MESH'):
-				if (2 <= len(ob.vertex_groups)):
-					return True
+		if len(context.active_object.vertex_groups) >= 2:
+			return True
 		return False
 
 	def execute(self, context):
@@ -130,11 +115,8 @@ class CopyMirrorVertexGroups(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		ob = context.active_object
-		if (ob):
-			if (ob.type == 'MESH'):
-				if (len(ob.vertex_groups)):
-					return True
+		if context.active_object.vertex_groups:
+			return True
 		return False
 
 	def execute(self, context):
