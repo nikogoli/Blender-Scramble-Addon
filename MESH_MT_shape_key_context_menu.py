@@ -16,11 +16,8 @@ class CopyShape(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		ob = context.active_object
-		if (ob) and ob.mode == 'OBJECT':
-			if ob.type in {'MESH','CURVE'}:
-				if (ob.active_shape_key):
-					return True
+		if context.active_object.data.shape_keys is not None:
+			return True
 		return False
 
 	def execute(self, context):
@@ -50,12 +47,9 @@ class SelectShapeTop(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		ob = context.active_object
-		if (ob):
-			if ob.type in {'MESH','CURVE'}:
-				if (ob.data.shape_keys):
-					if (2 <= len(ob.data.shape_keys.key_blocks)):
-						return True
+		if context.active_object.data.shape_keys is not None:
+			if len(context.active_object.data.shape_keys.key_blocks) >= 2:
+				return True
 		return False
 
 	def execute(self, context):
@@ -70,12 +64,9 @@ class SelectShapeBottom(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		ob = context.active_object
-		if (ob):
-			if ob.type in {'MESH','CURVE'}:
-				if (ob.data.shape_keys):
-					if (2 <= len(ob.data.shape_keys.key_blocks)):
-						return True
+		if context.active_object.data.shape_keys is not None:
+			if len(context.active_object.data.shape_keys.key_blocks) >= 2:
+				return True
 		return False
 
 	def execute(self, context):
@@ -92,16 +83,13 @@ class AddLinkDriverShapeKeys(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		ob = context.active_object
-		if ob:
-			if ob.type in {'MESH','CURVE'}:
-				if ob.data.shape_keys:
-					for obj in context.selected_objects:
-						if ob.name == obj.name:
-							continue
-						if ob.type in {'MESH','CURVE'}:
-							if obj.data.shape_keys:
-								return True
+		if context.active_object.data.shape_keys is not None:
+			for obj in context.selected_objects:
+				if obj == context.active_object:
+					continue
+				if obj.type in {'MESH','CURVE'}:
+					if obj.data.shape_keys is not None:
+						return True
 		return False
 
 	def invoke(self, context, event):
