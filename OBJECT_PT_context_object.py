@@ -18,11 +18,10 @@ class DataNameToObjectName(bpy.types.Operator):
 	
 	@classmethod
 	def poll(cls, context):
-		if (not context.object):
-			return False
-		if (not context.object.data):
-			return False
-		return True
+		if context.active_object is not None:
+			if context.active_object.data is not None:
+				return True
+		return False
 
 	def execute(self, context):
 		if self.apply_selected:
@@ -42,11 +41,10 @@ class ObjectNameToDataName(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if (not context.object):
-			return False
-		if (not context.object.data):
-			return False
-		return True
+		if context.active_object is not None:
+			if context.active_object.data is not None:
+				return True
+		return False
 
 	def execute(self, context):
 		if self.apply_selected:
@@ -64,11 +62,9 @@ class CopyObjectName(bpy.types.Operator):
 	
 	@classmethod
 	def poll(cls, context):
-		if (not context.object):
-			return False
-		if (context.window_manager.clipboard == context.object.name):
-			return False
-		return True
+		if context.active_object is not None:
+			return True
+		return False
 	def execute(self, context):
 		context.window_manager.clipboard = context.object.name
 		self.report(type={'INFO'}, message=context.object.name)
@@ -82,13 +78,10 @@ class CopyDataName(bpy.types.Operator):
 	
 	@classmethod
 	def poll(cls, context):
-		if (not context.object):
-			return False
-		if (not context.object.data):
-			return False
-		if (context.window_manager.clipboard == context.object.data.name):
-			return False
-		return True
+		if context.active_object is not None:
+			if context.active_object.data is not None:
+				return True
+		return False
 	def execute(self, context):
 		context.window_manager.clipboard = context.object.data.name
 		self.report(type={'INFO'}, message=context.object.data.name)
@@ -133,7 +126,7 @@ def menu(self, context):
 		box = row.box().row(align=True)
 		box.label(text="To Clipboard", icon='COPYDOWN')
 		box.operator(CopyObjectName.bl_idname, icon='OBJECT_DATAMODE', text="")
-		if (context.active_bone or context.active_pose_bone):
+		if eval("bpy.ops.object.copy_bone_name.poll()"):
 			box.operator('object.copy_bone_name', icon='BONE_DATA', text="")# BONE_PT_context_bone.py で定義
 		box.operator(CopyDataName.bl_idname, icon='EDITMODE_HLT', text="")
 		box = row.box().row(align=True)
