@@ -23,9 +23,9 @@ class NewBakeImage(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if (context.active_object):
-			if (context.active_object.type == 'MESH'):
-				if (len(context.active_object.data.uv_layers)):
+		if context.active_object is not None:
+			if context.active_object.type == 'MESH':
+				if context.active_object.data.uv_layers:
 					return True
 		return False
 
