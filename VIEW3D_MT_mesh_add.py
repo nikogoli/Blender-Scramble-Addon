@@ -84,10 +84,10 @@ class CreateVertexGroupSplits(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if (context.mode == 'OBJECT'):
+		if context.mode == 'OBJECT':
 			for obj in context.selected_objects:
-				if (obj.type == 'MESH'):
-					if (len(obj.vertex_groups)):
+				if obj.type == 'MESH':
+					if obj.vertex_groups:
 						return True
 		return False
 
