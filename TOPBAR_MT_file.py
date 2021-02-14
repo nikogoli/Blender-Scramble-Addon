@@ -69,7 +69,7 @@ class SaveMainfileUnmassage(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if (bpy.data.filepath):
+		if bpy.data.filepath:
 			return True
 		return False
 
@@ -404,7 +404,7 @@ class AllOnShowAllEdges(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if (len(bpy.data.objects)):
+		if bpy.data.objects:
 			return True
 		return False
 	def invoke(self, context, event):
@@ -449,7 +449,7 @@ class AllSetDrawType(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if (len(bpy.data.objects)):
+		if bpy.data.objects:
 			return True
 		return False
 	def invoke(self, context, event):
@@ -471,7 +471,7 @@ class AllRenameObjectData(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if (len(bpy.data.objects)):
+		if bpy.data.objects:
 			return True
 		return False
 	def invoke(self, context, event):
@@ -503,12 +503,9 @@ class AllSetMaterialFreestyleColor(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if (not context.object):
-			return False
-		if (not context.object.active_material):
-			return False
-		if (len(bpy.data.materials)):
-			return True
+		if context.active_object is not None:
+			if context.active_object.active_material is not None:
+				return True
 		return False
 	def invoke(self, context, event):
 		return context.window_manager.invoke_props_dialog(self, width=300)
@@ -570,7 +567,7 @@ class AllSetMaterialFreestyleColorByDiffuse(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if (len(bpy.data.materials)):
+		if bpy.data.materials:
 			return True
 		return False
 	def invoke(self, context, event):
@@ -631,7 +628,7 @@ class AllSetMaterialObjectColor(bpy.types.Operator):
 
 	@classmethod
 	def poll(cls, context):
-		if (len(bpy.data.materials)):
+		if bpy.data.materials:
 			return True
 		return False
 	def invoke(self, context, event):
@@ -687,10 +684,9 @@ class AllRenameTextureFileName(bpy.types.Operator):
 	@classmethod
 	def poll(cls, context):
 		for tex in bpy.data.textures:
-			if (tex.type == "IMAGE"):
-				if (tex.image):
-					if (tex.image.filepath != ""):
-						return True
+			if tex.type == "IMAGE" and tex.image is not None:
+				if tex.image.filepath:
+					return True
 		return False
 
 	def execute(self, context):
