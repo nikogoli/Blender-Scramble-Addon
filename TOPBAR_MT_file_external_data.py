@@ -16,11 +16,10 @@ class ResaveAllImage(bpy.types.Operator):
 	
 	@classmethod
 	def poll(cls, context):
-		if (context.blend_data.filepath == ""):
-			return False
-		for img in bpy.data.images:
-			if (img.filepath != ""):
-				return True
+		if context.blend_data.filepath:
+			for img in bpy.data.images:
+				if img.filepath:
+					return True
 		return False
 	def execute(self, context):
 		for img in context.blend_data.images:
@@ -41,15 +40,12 @@ class IsolationTexturesUnusedFiles(bpy.types.Operator):
 	
 	@classmethod
 	def poll(cls, context):
-		path = context.blend_data.filepath
-		if (context.blend_data.filepath == ""):
-			return False
-		dir = os.path.dirname(path)
-		if (not os.path.isdir( os.path.join(dir, "textures") )):
-			return False
-		for img in bpy.data.images:
-			if (img.filepath != ""):
-				return True
+		if context.blend_data.filepath:
+			dir = os.path.dirname(context.blend_data.filepath)
+			if os.path.isdir(os.path.join(dir, "textures")):
+				for img in bpy.data.images:
+					if (img.filepath != ""):
+						return True	
 		return False
 	def execute(self, context):
 		names = []
