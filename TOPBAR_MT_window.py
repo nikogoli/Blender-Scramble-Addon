@@ -76,7 +76,7 @@ class AreaTypePieAnim(bpy.types.Menu):
 		op.type, op.mode = ["SEQUENCE_EDITOR", ""]
 		#Top Left
 		op = self.layout.menu_pie().operator(SetAreaType.bl_idname, text="Timeline", icon="TIME")
-		op.type, op.mode = ["TIMELINE", ""]
+		op.type, op.mode = ["DOPESHEET_EDITOR", "TIMELINE"]
 		#Top Right
 		op = self.layout.menu_pie().operator(SetAreaType.bl_idname, text="Non-Liner Animation", icon="NLA")
 		op.type, op.mode = ["NLA_EDITOR", ""]
